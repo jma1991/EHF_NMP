@@ -1,0 +1,200 @@
+---
+title: "Cell type annotation"
+author: "James Ashmore"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Motivation
+
+In this analysis we are going to annotate previously defined clusters with a cell type label. This process can be done manually using a domain expert's knowledge or automatically based on reference data.
+
+## Setup
+
+Define chunk options:
+
+```{r knitr}
+knitr::opts_chunk$set(
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/09-cell-annotation.Rmd/",
+  cache.lazy = FALSE,
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE,
+  fig.align = "center",
+  out.width = '100%'
+)
+```
+
+Attach required packages:
+
+```{r pacman}
+pacman::p_load(
+  SingleR,
+  scran,
+  scater,
+  here,
+  readr
+)
+```
+
+Import experiment data:
+
+```{r}
+rds <- here("data/08-marker-detection.rds")
+
+sce <- read_rds(rds)
+
+alt <- altExp(sce, "original", withColData = TRUE)
+```
+
+## Annotation
+
+### MouseRNAseqData {.tabset}
+
+Return the best annotation for each cell given a labelled reference dataset:
+
+```{r}
+ref <- MouseRNAseqData()
+
+rownames(alt) <- rowData(alt)$gene_name
+
+fit <- SingleR(alt, ref, labels = ref$label.main)
+```
+
+Create a heatmap of the SingleR assignment scores:
+
+```{r}
+plotScoreHeatmap(fit, clusters = sce$cluster)
+```
+
+Plot score distributions of labels:
+
+```{r}
+plotScoreDistribution(fit, show = "delta.med", ncol = 5, show.nmads = 3)
+```
+
+Examine the expression of the marker genes for each label in the test dataset:
+
+```{r results = "asis"}
+
+all <- metadata(fit)$de.genes
+
+for (x in names(all)) {
+
+  ids <- unique(unlist(all[[x]]))
+  
+  cat("#### ", x, "\n")
+  
+  plotHeatmap(alt, order_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, show_rownames = FALSE)
+  
+  cat("\n\n")
+  
+}
+```
+
+### MouseGastrulationData
+
+Load the gastrulation data package:
+
+```{r}
+library(MouseGastrulationData)
+```
+
+Process TS11 samples from gastrulation data:
+
+```{r}
+sel <- subset(AtlasSampleMetadata, stage %in% c("E7.5", "E7.75"))
+
+ref <- EmbryoAtlasData(type = "processed", samples = sel$sample)
+
+ref <- logNormCounts(ref)
+```
+
+Remove cells with NA values for a given label:
+
+```{r}
+sel <- !is.na(ref$celltype)
+
+ref <- ref[, sel]
+```
+
+Split gastrulation data by blocking factor:
+
+```{r}
+fct <- unique(ref$sample)
+
+ref <- lapply(fct, function(x) ref[, ref$sample == x])
+```
+
+Aggregate reference samples for a given label:
+
+```{r}
+ref <- lapply(ref, function(x) aggregateReference(x, x$celltype))
+
+lab <- lapply(ref, function(x) x$label)
+```
+
+Return the best annotation for each cell in a test dataset:
+
+```{r}
+rownames(alt) <- rowData(alt)$gene_id
+
+fit <- SingleR(alt, ref, labels = lab)
+```
+
+Annotate each cell in test dataset with best annotation:
+
+```{r}
+sce$gastrulation_celltype <- fit$labels
+```
+
+Average the scores from multiple blocks:
+
+```{r}
+fct <- unique(colnames(fit$scores))
+
+lst <- lapply(fct, function(x) fit$scores[, colnames(fit$scores) == x, drop = FALSE])
+
+ave <- lapply(lst, rowMeans)
+
+mat <- do.call(cbind, ave)
+
+colnames(mat) <- fct
+
+fit$scores <- mat
+```
+
+Create a heatmap of the average SingleR assignment scores:
+
+```{r}
+plotScoreHeatmap(fit, clusters = alt$cluster)
+```
+
+Plot score distributions of labels:
+
+```{r}
+plotScoreDistribution(fit, show = "delta.med", ncol = 3, show.nmads = 3)
+```
+
+## Summary
+
+### Output
+
+Write experiment data:
+
+```{r output}
+write_rds(sce, here("data/09-cell-annotation.rds"))
+```
+
+### Session
+
+Print session information:
+
+```{r session}
+devtools::session_info()
+```

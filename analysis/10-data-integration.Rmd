@@ -1,0 +1,457 @@
+---
+title: "Integrating datasets"
+author: "James Ashmore"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: workflowr::wflow_html
+editor_options:
+  chunk_output_type: console
+---
+
+## Setup
+
+Set chunk options:
+
+```{r knitr}
+knitr::opts_chunk$set(
+  autodep    = TRUE,
+  cache      = TRUE,
+  cache.path = "cache/10-data-integration.Rmd/",
+  cache.lazy = FALSE,
+  dev        = "png",
+  error      = FALSE,
+  message    = FALSE,
+  warning    = FALSE
+)
+```
+
+Load required packages:
+
+```{r pacman}
+pacman::p_load(batchelor, biomaRt, here, hues, org.Mm.eg.db, readr, scater, scran, BiocNeighbors)
+```
+
+Import experiment data:
+
+```{r}
+rds <- here("data/09-cell-annotation.rds")
+
+sce <- read_rds(rds)
+
+alt <- altExp(sce, "original", withColData = TRUE)
+```
+
+Create function to reduce legend size:
+
+```{r}
+small_legend <- function(myPlot, pointSize = 0.5, textSize = 3, spaceLegend = 0.1) {
+    myPlot +
+        guides(shape = guide_legend(ncol = 1, override.aes = list(size = pointSize)),
+               color = guide_legend(ncol = 1, override.aes = list(size = pointSize))) +
+        theme(legend.title = element_text(size = textSize), 
+              legend.text  = element_text(size = textSize),
+              legend.key.size = unit(spaceLegend, "lines"))
+}
+```
+
+## Gastrulation
+
+### Pre-processing
+
+Load the MouseGastrulationData package:
+  
+```{r}
+pacman::p_load(MouseGastrulationData)
+```
+
+Select TS11 samples:
+
+```{r}
+AtlasSampleMetadata <- subset(AtlasSampleMetadata, stage %in% c("E7.5", "E7.75"))
+```
+
+Obtain processed samples from the dataset:
+  
+```{r}
+ref <- EmbryoAtlasData(type = "processed", samples = AtlasSampleMetadata$sample)
+```
+
+Remove cells that are labelled as stripped nuclei:
+
+```{r}
+ref <- ref[, !ref$stripped]
+```
+
+Remove cells that are labelled as doublets:
+
+```{r}
+ref <- ref[, !ref$doublet]
+```
+
+Compute log-transformed normalized expression values:
+  
+```{r}
+ref <- logNormCounts(ref)
+```
+
+Rename cells from query and reference data:
+
+```{r}
+colnames(ref) <- paste("ref", seq_len(ncol(ref)), sep = "_")
+
+colnames(alt) <- paste("alt", seq_len(ncol(alt)), sep = "_")
+```
+
+## Integration
+
+### Variance modelling
+
+Collect variance modelling results from both studies:
+
+```{r}
+dec <- list()
+
+dec$ref = modelGeneVar(ref, block = ref$sample)
+
+rownames(dec$ref) <- rowData(ref)$ENSEMBL
+
+dec$alt = metadata(alt)$modelGeneVarWithSpikes
+
+rownames(dec$alt) <- rowData(alt)$gene_id
+```
+
+Find common unverse of features from both studies:
+
+```{r}
+ids <- list()
+
+ids$ref <- rownames(dec$ref)
+
+ids$alt <- rownames(dec$alt)
+
+ids$all <- intersect(ids$ref, ids$alt)
+```
+
+Combine variance modelling results from both studies:
+
+```{r}
+dec$ref <- dec$ref[ids$all, ]
+
+dec$alt <- dec$alt[ids$all, ]
+
+dec$all <- combineVar(dec$ref, dec$alt)
+```
+
+### Feature selection
+
+Remove female sex gene from list of features:
+
+```{r}
+hvg <- rownames(dec$all)
+
+hvg <- hvg[hvg != "ENSMUSG00000086503"] # Xist
+```
+
+Remove male sex genes from list of features:
+
+```{r}
+mrt <- useMart("ensembl")
+
+mrt <- useDataset("mmusculus_gene_ensembl", mart = mrt)
+
+out <- getBM(c("ensembl_gene_id", "chromosome_name"), mart = mrt)
+
+out <- subset(out, chromosome_name == "Y")
+
+hvg <- hvg[!hvg %in% out$ensembl_gene_id]
+```
+
+Remove cell-cycle related genes from list of features:
+
+```{r}
+org <- select(org.Mm.eg.db, keys = "GO:0007049", keytype = "GOALL", column = "ENSEMBL")
+
+hvg <- hvg[!hvg %in% org$ENSEMBL]
+```
+
+Select features for downstream integration:
+
+```{r}
+hvg <- dec$all[hvg, ]
+
+hvg <- subset(hvg, bio > 0)
+
+hvg <- rownames(hvg)
+```
+
+### Batch normalization
+
+Subset studies to common universe of features:
+
+```{r}
+rownames(ref) <- rowData(ref)$ENSEMBL
+
+rownames(alt) <- rowData(alt)$gene_id
+
+ids <- intersect(rownames(ref), rownames(alt))
+
+ref <- ref[ids, ]
+
+alt <- alt[ids, ]
+```
+
+Create list of samples (last one being the Wilson study):
+
+```{r}
+fct <- unique(ref$sample)
+
+all <- lapply(fct, function(x) ref[, ref$sample == x])
+
+all <- c(all, alt)
+
+names(all) <- c(fct, "x")
+```
+
+Perform batch normalization:
+
+```{r}
+all <- do.call(multiBatchNorm, all)
+```
+
+### Batch integration
+
+Create merge order (oldest to youngest embryo; most cells to least cells; Wilson study):
+
+```{r}
+dat <- colData(ref)
+
+dat <- split(dat, dat$stage)
+
+fct <- c("E8.5", "E8.25", "E8.0", "E7.75", "E7.5", "E7.25", "mixed_gastrulation", "E7.0", "E6.75", "E6.5")
+
+fct <- fct[fct %in% names(dat)]
+
+dat <- dat[fct]
+
+dat <- lapply(dat, function(x) table(x$stage, x$sample))
+
+dat <- lapply(dat, as.data.frame, stringsAsFactors = FALSE)
+
+dat <- lapply(dat, function(x) x[order(x$Freq, decreasing = TRUE), "Var2"])
+
+dat <- unname(dat)
+
+dat <- c(dat, "x")
+```
+
+Create combined object for integration:
+
+```{r}
+mnn <- do.call(noCorrect, all)
+
+counts(mnn) <- do.call(cbind, lapply(all, counts))
+
+sizeFactors(mnn) <- unlist(lapply(all, sizeFactors))
+
+logcounts(mnn) <- do.call(cbind, lapply(all, logcounts))
+
+assay(mnn, "merged") <- NULL
+```
+
+Correct experiments in order specified above:
+
+```{r}
+set.seed(1701)
+
+mnn <- correctExperiments(
+  mnn,
+  batch = mnn$batch,
+  subset.row = hvg,
+  correct.all = TRUE,
+  PARAM = FastMnnParam(merge.order = dat)
+)
+```
+
+## Annotation
+
+### Study
+
+Annotate cells from different studies:
+
+```{r}
+mnn$study <- "Marioni"
+
+mnn$study[mnn$batch == "x"] <- "Wilson"
+```
+
+### kNN
+
+Identify kNN cells for Wilson study:
+
+```{r}
+dim <- list(
+  qry = reducedDim(mnn, "corrected")[mnn$study == "Wilson", ],
+  sbj = reducedDim(mnn, "corrected")[mnn$study == "Marioni", ]
+)
+
+rownames(dim$qry) <- colnames(mnn)[mnn$study == "Wilson"]
+
+rownames(dim$sbj) <- colnames(mnn)[mnn$study == "Marioni"]
+
+knn <- queryKNN(dim$sbj, dim$qry, k = 10)
+
+knn$names <- knn$index
+
+knn$names <- matrix(rownames(dim$sbj)[knn$index], nrow = nrow(knn$index), ncol = ncol(knn$index))
+```
+
+### Cell type
+
+Annotate cells with cell type label:
+
+```{r}
+mnn$celltype <- NA
+
+ids <- rownames(dim$sbj)
+
+colData(mnn)[ids, "celltype"] <- colData(ref)[ids, "celltype"]
+  
+val <- apply(knn$names, 1, function(x) names(sort(table(colData(ref)[x, "celltype"]), decreasing = TRUE))[1])
+
+colData(mnn)[rownames(dim$qry), "celltype"] <- val
+```
+
+### Stage
+
+Annotate cells with stage label:
+
+```{r}
+mnn$stage <- NA
+
+ids <- rownames(dim$sbj)
+
+colData(mnn)[ids, "stage"] <- colData(ref)[ids, "stage"]
+  
+val <- apply(knn$names, 1, function(x) names(sort(table(colData(ref)[x, "stage"]), decreasing = TRUE))[1])
+
+colData(mnn)[rownames(dim$qry), "stage"] <- val
+```
+
+## Exploration
+
+```{r}
+dat <- data.frame(celltype = mnn$celltype, study = mnn$study, row.names = colnames(mnn))
+
+dat <- subset(dat, study == "Marioni")
+
+ggplot(dat, aes(y = celltype)) + geom_bar() + theme_bw()
+```
+
+
+```{r}
+dat <- data.frame(celltype = mnn$celltype, study = mnn$study, row.names = colnames(mnn))
+
+dat <- subset(dat, study == "Wilson")
+
+dat$cluster <- colData(alt)[rownames(dat), "cluster"]
+
+ggplot(dat, aes(y = celltype, fill = cluster)) + geom_bar(position = "dodge") + theme_bw()
+```
+
+Use UMAP settings from MouseGastrulationData analysis:
+
+```{r}
+set.seed(42)
+
+mnn <- runUMAP(mnn, dimred = "corrected", n_neighbors = 20, min_dist = 0.7)
+```
+
+Plot cells coloured by batch:
+
+```{r}
+dim <- reducedDim(mnn, "UMAP")
+
+dat <- as.data.frame(dim)
+
+dat$batch <- as.factor(mnn$batch)
+
+col <- iwanthue(nlevels(dat$batch))
+
+names(col) <- levels(dat$colour)
+
+ggplot(dat, aes(V1, V2, colour = batch)) +
+  geom_point(size = 0.25) +
+  scale_colour_manual(values = col) +
+  guides(colour = guide_legend(override.aes = list(size = 2))) +
+  theme_void() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by study:
+
+```{r}
+dim <- reducedDim(mnn, "UMAP")
+
+dat <- as.data.frame(dim)
+
+dat$study <- as.factor(mnn$study)
+
+col <- iwanthue(nlevels(dat$study))
+
+names(col) <- levels(dat$colour)
+
+ggplot(dat, aes(V1, V2, colour = study)) +
+  geom_point(size = 0.25) +
+  scale_colour_manual(values = col) +
+  guides(colour = guide_legend(override.aes = list(size = 2))) +
+  theme_void() + 
+  theme(aspect.ratio = 1)
+```
+
+Plot cells coloured by cell type:
+
+```{r}
+dim <- reducedDim(mnn, "UMAP")
+
+dat <- as.data.frame(dim)
+
+dat$celltype <- as.factor(mnn$celltype)
+
+col <- iwanthue(nlevels(dat$celltype))
+
+names(col) <- levels(dat$colour)
+
+plt <- ggplot(dat, aes(V1, V2, colour = celltype)) +
+  geom_point(size = 0.25) +
+  scale_colour_manual(values = col) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) +
+  theme_void() +
+  theme(aspect.ratio = 1)
+
+small_legend(plt, pointSize = 2, textSize = 6, spaceLegend = 0.5)
+```
+
+Plot cells coloured by cell type and faceted by study:
+
+```{r}
+dim <- reducedDim(mnn, "UMAP")
+
+dat <- as.data.frame(dim)
+
+dat$celltype <- as.factor(mnn$celltype)
+
+dat$study <- as.factor(mnn$study)
+
+col <- iwanthue(nlevels(dat$celltype))
+
+names(col) <- levels(dat$colour)
+
+plt <- ggplot(dat, aes(V1, V2, colour = celltype)) +
+  geom_point(size = 0.25) +
+  scale_colour_manual(values = col) + 
+    guides(colour = guide_legend(override.aes = list(size = 2))) +
+  facet_wrap(~ study) + 
+  theme_void() + 
+  theme(aspect.ratio = 1)
+
+small_legend(plt, pointSize = 2, textSize = 6, spaceLegend = 0.5)
+```
