@@ -16,7 +16,7 @@ navbar:
     - text: Feature selection
       href: 03-feature-selection.html
     - text: Dimensionality reduction
-      href: 04-reduced-dimensions.Rmd
+      href: 04-reduced-dimensions.html
     - text: Clustering
       href: 05-clustering.html
     - text: Doublet detection
