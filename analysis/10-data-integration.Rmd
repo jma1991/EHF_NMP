@@ -14,9 +14,7 @@ Set chunk options:
 ```{r knitr}
 knitr::opts_chunk$set(
   autodep    = TRUE,
-  cache      = TRUE,
-  cache.path = "cache/10-data-integration.Rmd/",
-  cache.lazy = FALSE,
+  cache      = FALSE,
   dev        = "png",
   error      = FALSE,
   message    = FALSE,
@@ -139,6 +137,8 @@ dec$ref <- dec$ref[ids$all, ]
 dec$alt <- dec$alt[ids$all, ]
 
 dec$all <- combineVar(dec$ref, dec$alt)
+
+rownames(dec$all) <- ids$all
 ```
 
 ### Feature selection
@@ -199,7 +199,7 @@ ref <- ref[ids, ]
 alt <- alt[ids, ]
 ```
 
-Create list of samples (last one being the Wilson study):
+Create list of samples (last one being the query sample):
 
 ```{r}
 fct <- unique(ref$sample)
@@ -219,7 +219,7 @@ all <- do.call(multiBatchNorm, all)
 
 ### Batch integration
 
-Create merge order (oldest to youngest embryo; most cells to least cells; Wilson study):
+Create merge order (oldest to youngest embryo; most cells to least cells; Mallo study):
 
 ```{r}
 dat <- colData(ref)
@@ -238,23 +238,9 @@ dat <- lapply(dat, as.data.frame, stringsAsFactors = FALSE)
 
 dat <- lapply(dat, function(x) x[order(x$Freq, decreasing = TRUE), "Var2"])
 
-dat <- unname(dat)
-
 dat <- c(dat, "x")
-```
 
-Create combined object for integration:
-
-```{r}
-mnn <- do.call(noCorrect, all)
-
-counts(mnn) <- do.call(cbind, lapply(all, counts))
-
-sizeFactors(mnn) <- unlist(lapply(all, sizeFactors))
-
-logcounts(mnn) <- do.call(cbind, lapply(all, logcounts))
-
-assay(mnn, "merged") <- NULL
+dat <- unname(dat)
 ```
 
 Correct experiments in order specified above:
@@ -263,12 +249,19 @@ Correct experiments in order specified above:
 set.seed(1701)
 
 mnn <- correctExperiments(
-  mnn,
-  batch = mnn$batch,
+  all,
   subset.row = hvg,
   correct.all = TRUE,
   PARAM = FastMnnParam(merge.order = dat)
 )
+```
+
+Filter redundant columns from rowData slot:
+
+```{r}
+rowData(mnn) <- rowData(mnn)[, c("rotation", "ENSEMBL", "SYMBOL")]
+
+rownames(mnn) <- uniquifyFeatureNames(rowData(mnn)$ENSEMBL, rowData(mnn)$SYMBOL)
 ```
 
 ## Annotation
@@ -280,20 +273,20 @@ Annotate cells from different studies:
 ```{r}
 mnn$study <- "Marioni"
 
-mnn$study[mnn$batch == "x"] <- "Wilson"
+mnn$study[mnn$batch == "x"] <- "Mallo"
 ```
 
 ### kNN
 
-Identify kNN cells for Wilson study:
+Identify kNN cells for Mallo study:
 
 ```{r}
 dim <- list(
-  qry = reducedDim(mnn, "corrected")[mnn$study == "Wilson", ],
+  qry = reducedDim(mnn, "corrected")[mnn$study == "Mallo", ],
   sbj = reducedDim(mnn, "corrected")[mnn$study == "Marioni", ]
 )
 
-rownames(dim$qry) <- colnames(mnn)[mnn$study == "Wilson"]
+rownames(dim$qry) <- colnames(mnn)[mnn$study == "Mallo"]
 
 rownames(dim$sbj) <- colnames(mnn)[mnn$study == "Marioni"]
 
@@ -306,7 +299,7 @@ knn$names <- matrix(rownames(dim$sbj)[knn$index], nrow = nrow(knn$index), ncol =
 
 ### Cell type
 
-Annotate cells with cell type label:
+Annotate cells with celltype label:
 
 ```{r}
 mnn$celltype <- NA
@@ -314,10 +307,24 @@ mnn$celltype <- NA
 ids <- rownames(dim$sbj)
 
 colData(mnn)[ids, "celltype"] <- colData(ref)[ids, "celltype"]
-  
+
+ids <- rownames(dim$qry)
+
+colData(mnn)[ids, "celltype"] <- colData(alt)[ids, "gastrulation_celltype"]
+```
+
+Annotate cells with kNN celltype label:
+
+```{r}
+mnn$knn.celltype <- NA
+
+ids <- rownames(dim$sbj)
+
+colData(mnn)[ids, "knn.celltype"] <- colData(ref)[ids, "celltype"]
+
 val <- apply(knn$names, 1, function(x) names(sort(table(colData(ref)[x, "celltype"]), decreasing = TRUE))[1])
 
-colData(mnn)[rownames(dim$qry), "celltype"] <- val
+colData(mnn)[rownames(dim$qry), "knn.celltype"] <- val
 ```
 
 ### Stage
@@ -325,18 +332,20 @@ colData(mnn)[rownames(dim$qry), "celltype"] <- val
 Annotate cells with stage label:
 
 ```{r}
-mnn$stage <- NA
+mnn$knn.stage <- NA
 
 ids <- rownames(dim$sbj)
 
-colData(mnn)[ids, "stage"] <- colData(ref)[ids, "stage"]
+colData(mnn)[ids, "knn.stage"] <- colData(ref)[ids, "stage"]
   
 val <- apply(knn$names, 1, function(x) names(sort(table(colData(ref)[x, "stage"]), decreasing = TRUE))[1])
 
-colData(mnn)[rownames(dim$qry), "stage"] <- val
+colData(mnn)[rownames(dim$qry), "knn.stage"] <- val
 ```
 
 ## Exploration
+
+Plot number of cells by celltype from Marioni study:
 
 ```{r}
 dat <- data.frame(celltype = mnn$celltype, study = mnn$study, row.names = colnames(mnn))
@@ -346,18 +355,19 @@ dat <- subset(dat, study == "Marioni")
 ggplot(dat, aes(y = celltype)) + geom_bar() + theme_bw()
 ```
 
+Plot number of cells by celltype and cluster from Mallo study:
 
 ```{r}
 dat <- data.frame(celltype = mnn$celltype, study = mnn$study, row.names = colnames(mnn))
 
-dat <- subset(dat, study == "Wilson")
+dat <- subset(dat, study == "Mallo")
 
 dat$cluster <- colData(alt)[rownames(dat), "cluster"]
 
 ggplot(dat, aes(y = celltype, fill = cluster)) + geom_bar(position = "dodge") + theme_bw()
 ```
 
-Use UMAP settings from MouseGastrulationData analysis:
+Create UMAP data with similar settings to the MouseGastrulationData package:
 
 ```{r}
 set.seed(42)
@@ -380,7 +390,7 @@ names(col) <- levels(dat$colour)
 
 ggplot(dat, aes(V1, V2, colour = batch)) +
   geom_point(size = 0.25) +
-  scale_colour_manual(values = col) +
+  scale_colour_manual(name = "Batch", values = col) +
   guides(colour = guide_legend(override.aes = list(size = 2))) +
   theme_void() + 
   theme(aspect.ratio = 1)
@@ -401,7 +411,7 @@ names(col) <- levels(dat$colour)
 
 ggplot(dat, aes(V1, V2, colour = study)) +
   geom_point(size = 0.25) +
-  scale_colour_manual(values = col) +
+  scale_colour_manual(name = "Study", values = col) +
   guides(colour = guide_legend(override.aes = list(size = 2))) +
   theme_void() + 
   theme(aspect.ratio = 1)
@@ -422,7 +432,7 @@ names(col) <- levels(dat$colour)
 
 plt <- ggplot(dat, aes(V1, V2, colour = celltype)) +
   geom_point(size = 0.25) +
-  scale_colour_manual(values = col) + 
+  scale_colour_manual(name = "Celltype", values = col) + 
   guides(colour = guide_legend(override.aes = list(size = 2))) +
   theme_void() +
   theme(aspect.ratio = 1)
@@ -447,11 +457,29 @@ names(col) <- levels(dat$colour)
 
 plt <- ggplot(dat, aes(V1, V2, colour = celltype)) +
   geom_point(size = 0.25) +
-  scale_colour_manual(values = col) + 
-    guides(colour = guide_legend(override.aes = list(size = 2))) +
+  scale_colour_manual(name = "Celltype", values = col) + 
+  guides(colour = guide_legend(override.aes = list(size = 2))) +
   facet_wrap(~ study) + 
   theme_void() + 
   theme(aspect.ratio = 1)
 
 small_legend(plt, pointSize = 2, textSize = 6, spaceLegend = 0.5)
+```
+
+## Summary
+
+### Output
+
+Write experiment data:
+
+```{r}
+readr::write_rds(mnn, here("data/10-data-integration.rds"))
+```
+
+### Session
+
+Print session information:
+
+```{r}
+devtools::session_info()
 ```
