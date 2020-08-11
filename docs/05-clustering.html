@@ -401,7 +401,10 @@ div.tocify {
       <a href="09-cell-annotation.html">Cell type annotation</a>
     </li>
     <li>
-      <a href="10-data-integration.html">Integrating datasets</a>
+      <a href="10-atlas-integration.html">Atlas integration</a>
+    </li>
+    <li>
+      <a href="11-neural-integration.html">Neural integration</a>
     </li>
   </ul>
 </li>
@@ -425,14 +428,14 @@ div.tocify {
 
 <h1 class="title toc-ignore">Clustering</h1>
 <h4 class="author">James Ashmore</h4>
-<h4 class="date">17 March, 2020</h4>
+<h4 class="date">11 August, 2020</h4>
 
 </div>
 
 
 <p>
 <button type="button" class="btn btn-default btn-workflowr btn-workflowr-report" data-toggle="collapse" data-target="#workflowr-report">
-<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span>
+<span class="glyphicon glyphicon-list" aria-hidden="true"></span> workflowr <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span>
 </button>
 </p>
 <div id="workflowr-report" class="collapse">
@@ -441,7 +444,7 @@ div.tocify {
 <a data-toggle="tab" href="#summary">Summary</a>
 </li>
 <li>
-<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> </a>
+<a data-toggle="tab" href="#checks"> Checks <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> </a>
 </li>
 <li>
 <a data-toggle="tab" href="#versions">Past versions</a>
@@ -450,17 +453,17 @@ div.tocify {
 <div class="tab-content">
 <div id="summary" class="tab-pane fade in active">
 <p>
-<strong>Last updated:</strong> 2020-03-17
+<strong>Last updated:</strong> 2020-08-11
 </p>
 <p>
-<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 7 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 0
+<strong>Checks:</strong> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> 5 <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> 2
 </p>
 <p>
 <strong>Knit directory:</strong> <code>EHF_NMP/</code> <span class="glyphicon glyphicon-question-sign" aria-hidden="true" title="This is the local directory in which the code in this file was executed."> </span>
 </p>
 <p>
 This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis was created with <a
-  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.1). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
+  href="https://github.com/jdblischak/workflowr">workflowr</a> (version 1.6.2). The <em>Checks</em> tab describes the reproducibility checks that were applied when the results were created. The <em>Past versions</em> tab lists the development history.
 </p>
 <hr>
 </div>
@@ -469,12 +472,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguptodate"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>R Markdown file:</strong> up-to-date </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRMarkdownfilestronguncommittedchanges"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>R Markdown file:</strong> uncommitted changes </a>
 </p>
 </div>
-<div id="strongRMarkdownfilestronguptodate" class="panel-collapse collapse">
+<div id="strongRMarkdownfilestronguncommittedchanges" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great! Since the R Markdown file has been committed to the Git repository, you know the exact version of the code that produced these results.</p>
+<p>The R Markdown file has unstaged changes. To know which version of the R Markdown file created these results, you’ll want to first commit it to the Git repo. If you’re still working on the analysis, you can ignore this warning. When you’re finished, you can run <code>wflow_publish</code> to commit the R Markdown file and build the HTML.</p>
 </div>
 </div>
 </div>
@@ -505,12 +508,12 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongrecorded"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Session information:</strong> recorded </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongSessioninformationstrongunavailable"> <span class="glyphicon glyphicon-exclamation-sign text-danger" aria-hidden="true"></span> <strong>Session information:</strong> unavailable </a>
 </p>
 </div>
-<div id="strongSessioninformationstrongrecorded" class="panel-collapse collapse">
+<div id="strongSessioninformationstrongunavailable" class="panel-collapse collapse">
 <div class="panel-body">
-<p>Great job! Recording the operating system, R version, and package versions is critical for reproducibility.</p>
+<p>Recording the operating system, R version, and package versions is critical for reproducibility. To record the session information, add <code>sessioninfo: “sessionInfo()”</code> to _workflowr.yml. Alternatively, you could use <code>devtools::session_info()</code> or <code>sessioninfo::session_info()</code>. Lastly, you can manually add a code chunk to this file to run any one of these commands and then disable to automatic insertion by changing the workflowr setting to <code>sessioninfo: &quot;&quot;</code>.</p>
 </div>
 </div>
 </div>
@@ -541,16 +544,16 @@ This reproducible <a href="http://rmarkdown.rstudio.com">R Markdown</a> analysis
 <div class="panel panel-default">
 <div class="panel-heading">
 <p class="panel-title">
-<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991EHFNMPtreef88e418d34d32128a97487d020049e359219aa7ctargetblankf88e418a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/EHF_NMP/tree/f88e418d34d32128a97487d020049e359219aa7c" target="_blank">f88e418</a> </a>
+<a data-toggle="collapse" data-parent="#workflowr-checks" href="#strongRepositoryversionstrongahrefhttpsgithubcomjma1991EHFNMPtree6cbbd7683ffd0c75e90708ab31495da31a6a98e4targetblank6cbbd76a"> <span class="glyphicon glyphicon-ok text-success" aria-hidden="true"></span> <strong>Repository version:</strong> <a href="https://github.com/jma1991/EHF_NMP/tree/6cbbd7683ffd0c75e90708ab31495da31a6a98e4" target="_blank">6cbbd76</a> </a>
 </p>
 </div>
-<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991EHFNMPtreef88e418d34d32128a97487d020049e359219aa7ctargetblankf88e418a" class="panel-collapse collapse">
+<div id="strongRepositoryversionstrongahrefhttpsgithubcomjma1991EHFNMPtree6cbbd7683ffd0c75e90708ab31495da31a6a98e4targetblank6cbbd76a" class="panel-collapse collapse">
 <div class="panel-body">
 <p>
 Great! You are using Git for version control. Tracking code development and connecting the code version to the results is critical for reproducibility.
 </p>
 <p>
-The results in this page were generated with repository version <a href="https://github.com/jma1991/EHF_NMP/tree/f88e418d34d32128a97487d020049e359219aa7c" target="_blank">f88e418</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
+The results in this page were generated with repository version <a href="https://github.com/jma1991/EHF_NMP/tree/6cbbd7683ffd0c75e90708ab31495da31a6a98e4" target="_blank">6cbbd76</a>. See the <em>Past versions</em> tab to see a history of the changes made to the R Markdown and HTML files.
 </p>
 <p>
 Note that you need to be careful to ensure that all relevant files for the analysis have been committed to Git prior to generating the results (you can use <code>wflow_publish</code> or <code>wflow_git_commit</code>). workflowr only checks the R Markdown file, but you know if there are other scripts or data files that it depends on. Below is the status of the Git repository when the results were generated:
@@ -563,8 +566,11 @@ Ignored files:
     Ignored:    analysis/.DS_Store
 
 Untracked files:
+    Untracked:  analysis/10-atlas-integration.Rmd
+    Untracked:  analysis/11-neural-integration.Rmd
+    Untracked:  analysis/backup/
     Untracked:  analysis/cache/
-    Untracked:  data/00-data-loading.rds
+    Untracked:  analysis/interactive.Rmd
     Untracked:  data/01-quality-control.rds
     Untracked:  data/02-normalization.rds
     Untracked:  data/03-feature-selection.rds
@@ -574,9 +580,25 @@ Untracked files:
     Untracked:  data/07-cell-cycle.rds
     Untracked:  data/08-marker-detection.rds
     Untracked:  data/09-cell-annotation.rds
+    Untracked:  data/10-atlas-integration.rds
+    Untracked:  data/GSE132504.rds
+    Untracked:  data/cell-markers.csv
+    Untracked:  data/salmon-quant.rds
+    Untracked:  shiny/
 
 Unstaged changes:
     Modified:   _workflowr.yml
+    Modified:   analysis/01-quality-control.Rmd
+    Modified:   analysis/02-normalization.Rmd
+    Modified:   analysis/03-feature-selection.Rmd
+    Modified:   analysis/04-reduced-dimensions.Rmd
+    Modified:   analysis/05-clustering.Rmd
+    Modified:   analysis/06-doublet-detection.Rmd
+    Modified:   analysis/07-cell-cycle.Rmd
+    Modified:   analysis/08-marker-detection.Rmd
+    Modified:   analysis/09-cell-annotation.Rmd
+    Deleted:    analysis/10-data-integration.Rmd
+    Modified:   analysis/_site.yml
 
 </code></pre>
 <p>
@@ -615,6 +637,23 @@ Message
 </tr>
 </thead>
 <tbody>
+<tr>
+<td>
+html
+</td>
+<td>
+<a href="https://rawcdn.githack.com/jma1991/EHF_NMP/80bebeb049781d8b415464d8ff56848f7fd30130/docs/05-clustering.html" target="_blank">80bebeb</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-17
+</td>
+<td>
+commit analysis
+</td>
+</tr>
 <tr>
 <td>
 html
@@ -673,21 +712,13 @@ commit analysis
   warning    = FALSE
 )</code></pre>
 <p>Load required packages:</p>
-<pre class="r"><code>pacman::p_load(
-  cluster,
-  devtools,
-  here,
-  igraph,
-  pheatmap,
-  readr,
-  SC3,
-  scater,
-  scran
-)</code></pre>
+<pre class="r"><code>library(cluster)
+library(igraph)
+library(pheatmap)
+library(scater)
+library(scran)</code></pre>
 <p>Read experiment data:</p>
-<pre class="r"><code>rds &lt;- here(&quot;data/04-reduced-dimensions.rds&quot;)
-
-sce &lt;- read_rds(rds)</code></pre>
+<pre class="r"><code>sce &lt;- readRDS(&quot;data/04-reduced-dimensions.rds&quot;)</code></pre>
 </div>
 <div id="graph" class="section level2">
 <h2>Graph</h2>
@@ -704,6 +735,8 @@ sce$cluster_walktrap &lt;- factor(cls)</code></pre>
 
 mod &lt;- Matrix::forceSymmetric(mod)
 
+mod &lt;- log2(mod + 1)
+
 pal &lt;- RColorBrewer::brewer.pal(5, &quot;Greens&quot;)
 
 col &lt;- colorRampPalette(pal)(10)
@@ -711,34 +744,140 @@ col &lt;- colorRampPalette(pal)(10)
 brk &lt;- seq(0, max(mod), length.out = 11)
 
 pheatmap(mod, color = col, breaks = brk, cluster_rows = FALSE, cluster_cols = FALSE)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-4-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-5-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-5-1">
+Past versions of unnamed-chunk-5-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-5-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-5-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Inspect dimensionality reduction plots coloured by explanatory variables:</p>
+<pre class="r"><code>var &lt;- c(&quot;cluster_walktrap&quot;, &quot;sum&quot;, &quot;detected&quot;, &quot;altexps_ERCC_percent&quot;)</code></pre>
 <div id="pca" class="section level4">
 <h4>PCA</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_walktrap&quot;)
-
-plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x, text_by = x))
-
-patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-5-1.png" width="960" style="display: block; margin: auto;" /></p>
-</div>
-<div id="tsne" class="section level4">
-<h4>TSNE</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_walktrap&quot;)
-
-plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x, text_by = x))
-
-patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-6-1.png" width="960" style="display: block; margin: auto;" /></p>
-</div>
-<div id="umap" class="section level4">
-<h4>UMAP</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_walktrap&quot;)
-
-plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
 <p><img src="figure/05-clustering.Rmd/unnamed-chunk-7-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-7-1">
+Past versions of unnamed-chunk-7-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-7-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-7-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<div id="tsne" class="section level4">
+<h4>TSNE</h4>
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x))
+
+patchwork::wrap_plots(plt)</code></pre>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-8-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
+<div id="umap" class="section level4">
+<h4>UMAP</h4>
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x))
+
+patchwork::wrap_plots(plt)</code></pre>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-9-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-9-1">
+Past versions of unnamed-chunk-9-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-9-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-9-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 </div>
 <div id="louvain" class="section level3 tabset">
@@ -754,6 +893,8 @@ sce$cluster_louvain &lt;- factor(cls)</code></pre>
 
 mod &lt;- Matrix::forceSymmetric(mod)
 
+mod &lt;- log2(mod + 1)
+
 pal &lt;- RColorBrewer::brewer.pal(5, &quot;Greens&quot;)
 
 col &lt;- colorRampPalette(pal)(10)
@@ -761,60 +902,172 @@ col &lt;- colorRampPalette(pal)(10)
 brk &lt;- seq(0, max(mod), length.out = 11)
 
 pheatmap(mod, color = col, breaks = brk, cluster_rows = FALSE, cluster_cols = FALSE)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-9-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-11-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-11-1">
+Past versions of unnamed-chunk-11-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-11-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-11-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Inspect dimensionality reduction plots coloured by explanatory variables:</p>
+<pre class="r"><code>var &lt;- c(&quot;cluster_louvain&quot;, &quot;sum&quot;, &quot;detected&quot;, &quot;altexps_ERCC_percent&quot;)</code></pre>
 <div id="pca-1" class="section level4">
 <h4>PCA</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_louvain&quot;)
-
-plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-10-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-13-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-13-1">
+Past versions of unnamed-chunk-13-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-13-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-13-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="tsne-1" class="section level4">
 <h4>TSNE</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_louvain&quot;)
-
-plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-11-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-14-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 <div id="umap-1" class="section level4">
 <h4>UMAP</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_louvain&quot;)
-
-plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-12-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-15-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 </div>
 </div>
-<div id="k-means" class="section level2 tabset">
-<h2>K-means</h2>
+<div id="supervised" class="section level2">
+<h2>Supervised</h2>
+<div id="k-means" class="section level3 tabset">
+<h3>K-means</h3>
 <p>Perform k-means clustering on the PCA matrix:</p>
-<pre class="r"><code>set.seed(1701)
+<pre class="r"><code>set.seed(689883712)
 
 dim &lt;- reducedDim(sce, &quot;PCA&quot;)
 
-gap &lt;- clusGap(dim, kmeans, K.max = 50)
+gap &lt;- clusGap(dim, kmeans, K.max = 20)
 
-num &lt;- maxSE(gap$Tab[, &quot;gap&quot;], gap$Tab[, &quot;SE.sim&quot;])
-
-dat &lt;- data.frame(var = seq_len(50), val = gap$Tab[, &quot;gap&quot;])
+num &lt;- maxSE(gap$Tab[, &quot;gap&quot;], gap$Tab[, &quot;SE.sim&quot;])</code></pre>
+<p>Inspect gap statistic rate:</p>
+<pre class="r"><code>dat &lt;- data.frame(var = seq_len(gap$call$K.max), val = gap$Tab[, &quot;gap&quot;])
 
 ggplot(dat, aes(var, val)) +
   geom_point() +
   geom_vline(xintercept = num, colour = &quot;red&quot;) +
   labs(x = &quot;Number of clusters&quot;, y = &quot;Gap statistic&quot;) +
-  theme_classic()</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-13-1.png" width="672" style="display: block; margin: auto;" /></p>
+  theme_bw()</code></pre>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-17-1.png" width="672" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-17-1">
+Past versions of unnamed-chunk-17-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-17-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-17-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 <p>Select optimal number of clusters:</p>
-<pre class="r"><code>cls &lt;- kmeans(dim, centers = num)
+<pre class="r"><code>set.seed(689883712)
+
+cls &lt;- kmeans(dim, centers = num)
 
 sce$cluster_kmeans &lt;- factor(cls$cluster)</code></pre>
+<p>Check the number of clusters before plotting:</p>
+<pre class="r"><code>run &lt;- ifelse(num &gt; 2, TRUE, FALSE)</code></pre>
 <p>Plot the distances between clusters using their centroids:</p>
 <pre class="r"><code>tab &lt;- tabulate(cls$cluster)
 
@@ -826,36 +1079,108 @@ hcl &lt;- hclust(stats::dist(cls$centers), method = &quot;ward.D2&quot;)
 
 plot(hcl)</code></pre>
 <p>Inspect dimensionality reduction plots coloured by explanatory variables:</p>
+<pre class="r"><code>var &lt;- c(&quot;cluster_kmeans&quot;, &quot;sum&quot;, &quot;detected&quot;, &quot;altexps_ERCC_percent&quot;)</code></pre>
 <div id="pca-2" class="section level4">
 <h4>PCA</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_kmeans&quot;)
-
-plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-16-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-22-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-22-1">
+Past versions of unnamed-chunk-22-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-22-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-22-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="tsne-2" class="section level4">
 <h4>TSNE</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_kmeans&quot;)
-
-plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-17-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-23-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p>
+<button type="button" class="btn btn-default btn-xs btn-workflowr btn-workflowr-fig" data-toggle="collapse" data-target="#fig-unnamed-chunk-23-1">
+Past versions of unnamed-chunk-23-1.png
+</button>
+</p>
+<div id="fig-unnamed-chunk-23-1" class="collapse">
+<div class="table-responsive">
+<table class="table table-condensed table-hover">
+<thead>
+<tr>
+<th>
+Version
+</th>
+<th>
+Author
+</th>
+<th>
+Date
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>
+<a href="https://github.com/jma1991/EHF_NMP/blob/ea19c25457f0a4624a99dd7ce06acd17920d97ed/docs/figure/05-clustering.Rmd/unnamed-chunk-23-1.png" target="_blank">ea19c25</a>
+</td>
+<td>
+James Ashmore
+</td>
+<td>
+2020-03-16
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
 </div>
 <div id="umap-2" class="section level4">
 <h4>UMAP</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_kmeans&quot;)
-
-plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-18-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-24-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 </div>
-<div id="hierarchical" class="section level2 tabset">
-<h2>Hierarchical</h2>
+</div>
+<div id="unsupervised" class="section level2">
+<h2>Unsupervised</h2>
+<div id="hierarchical" class="section level3 tabset">
+<h3>Hierarchical</h3>
 <p>Perform hierarchical cluster analysis on the PCA data:</p>
 <pre class="r"><code>dim &lt;- reducedDim(sce, &quot;PCA&quot;)
 
@@ -866,203 +1191,52 @@ cls &lt;- hclust(dst, &quot;ward.D2&quot;)
 mat &lt;- as.matrix(dst)
 
 cut &lt;- dynamicTreeCut::cutreeDynamic(cls, distM = mat)</code></pre>
-<pre><code> ..cutHeight not given, setting it to 361  ===&gt;  99% of the (truncated) height range in dendro.
+<pre><code> ..cutHeight not given, setting it to 256  ===&gt;  99% of the (truncated) height range in dendro.
  ..done.</code></pre>
 <pre class="r"><code>sce$cluster_hclust &lt;- factor(cut)</code></pre>
 <p>Calculate the modularity of each cluster:</p>
 <pre class="r"><code>sil &lt;- silhouette(cut, dist = dst)
 
-plot(sil)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-20-1.png" width="672" style="display: block; margin: auto;" /></p>
+col &lt;- seq_len(nlevels(sce$cluster_hclust))
+
+plot(sil, col = col, border = NA)</code></pre>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-26-1.png" width="672" style="display: block; margin: auto;" /></p>
 <p>Inspect dimensionality reduction plots coloured by explanatory variables:</p>
+<pre class="r"><code>var &lt;- c(&quot;cluster_hclust&quot;, &quot;sum&quot;, &quot;detected&quot;, &quot;altexps_ERCC_percent&quot;)</code></pre>
 <div id="pca-3" class="section level4">
 <h4>PCA</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_hclust&quot;)
-
-plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotPCA(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-21-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-28-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 <div id="tsne-3" class="section level4">
 <h4>TSNE</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_hclust&quot;)
-
-plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotTSNE(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-22-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-29-1.png" width="960" style="display: block; margin: auto;" /></p>
 </div>
 <div id="umap-3" class="section level4">
 <h4>UMAP</h4>
-<pre class="r"><code>var &lt;- c(&quot;cluster_hclust&quot;)
-
-plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x, text_by = x))
+<pre class="r"><code>plt &lt;- lapply(var, function(x) plotUMAP(sce, colour_by = x))
 
 patchwork::wrap_plots(plt)</code></pre>
-<p><img src="figure/05-clustering.Rmd/unnamed-chunk-23-1.png" width="960" style="display: block; margin: auto;" /></p>
+<p><img src="figure/05-clustering.Rmd/unnamed-chunk-30-1.png" width="960" style="display: block; margin: auto;" /></p>
+</div>
 </div>
 </div>
 <div id="selection" class="section level2">
 <h2>Selection</h2>
 <p>Choose clustering method for downstream analysis:</p>
-<pre class="r"><code>sce$cluster &lt;- sce$cluster_walktrap</code></pre>
+<pre class="r"><code>sce$cluster &lt;- sce$cluster_louvain</code></pre>
 </div>
 <div id="summary" class="section level2">
 <h2>Summary</h2>
 <div id="output" class="section level3">
 <h3>Output</h3>
 <p>Write experiment data:</p>
-<pre class="r"><code>write_rds(sce, here(&quot;data/05-clustering.rds&quot;))</code></pre>
-</div>
-<div id="session" class="section level3">
-<h3>Session</h3>
-<p>Print session information:</p>
-<pre class="r"><code>session_info()</code></pre>
-<pre><code>─ Session info ───────────────────────────────────────────────────────────────
- setting  value                       
- version  R version 3.6.1 (2019-07-05)
- os       macOS Catalina 10.15.3      
- system   x86_64, darwin15.6.0        
- ui       X11                         
- language (EN)                        
- collate  en_GB.UTF-8                 
- ctype    en_GB.UTF-8                 
- tz       Europe/London               
- date     2020-03-14                  
-
-─ Packages ───────────────────────────────────────────────────────────────────
- package              * version  date       lib source           
- assertthat             0.2.1    2019-03-21 [1] CRAN (R 3.6.0)   
- backports              1.1.5    2019-10-02 [1] CRAN (R 3.6.1)   
- beeswarm               0.2.3    2016-04-25 [1] CRAN (R 3.6.1)   
- Biobase              * 2.46.0   2019-10-29 [1] Bioconductor     
- BiocGenerics         * 0.32.0   2019-10-29 [1] Bioconductor     
- BiocNeighbors          1.4.2    2020-02-29 [1] Bioconductor     
- BiocParallel         * 1.20.1   2019-12-21 [1] Bioconductor     
- BiocSingular           1.2.2    2020-02-14 [1] Bioconductor     
- bitops                 1.0-6    2013-08-17 [1] CRAN (R 3.6.0)   
- callr                  3.4.2    2020-02-12 [1] CRAN (R 3.6.1)   
- caTools                1.18.0   2020-01-17 [1] CRAN (R 3.6.1)   
- class                  7.3-15   2019-01-01 [1] CRAN (R 3.6.1)   
- cli                    2.0.2    2020-02-28 [1] CRAN (R 3.6.0)   
- cluster              * 2.1.0    2019-06-19 [1] CRAN (R 3.6.1)   
- codetools              0.2-16   2018-12-24 [1] CRAN (R 3.6.1)   
- colorspace             1.4-1    2019-03-18 [1] CRAN (R 3.6.0)   
- cowplot                1.0.0    2019-07-11 [1] CRAN (R 3.6.0)   
- crayon                 1.3.4    2017-09-16 [1] CRAN (R 3.6.0)   
- DelayedArray         * 0.12.2   2020-01-06 [1] Bioconductor     
- DelayedMatrixStats     1.8.0    2019-10-29 [1] Bioconductor     
- DEoptimR               1.0-8    2016-11-19 [1] CRAN (R 3.6.1)   
- desc                   1.2.0    2018-05-01 [1] CRAN (R 3.6.1)   
- devtools             * 2.2.2    2020-02-17 [1] CRAN (R 3.6.0)   
- digest                 0.6.25   2020-02-23 [1] CRAN (R 3.6.0)   
- doParallel             1.0.15   2019-08-02 [1] CRAN (R 3.6.1)   
- doRNG                  1.8.2    2020-01-27 [1] CRAN (R 3.6.1)   
- dplyr                  0.8.5    2020-03-07 [1] CRAN (R 3.6.0)   
- dqrng                  0.2.1    2019-05-17 [1] CRAN (R 3.6.1)   
- dynamicTreeCut         1.63-1   2016-03-11 [1] CRAN (R 3.6.1)   
- e1071                  1.7-3    2019-11-26 [1] CRAN (R 3.6.1)   
- edgeR                  3.28.1   2020-02-26 [1] Bioconductor     
- ellipsis               0.3.0    2019-09-20 [1] CRAN (R 3.6.0)   
- evaluate               0.14.1   2020-02-14 [1] local            
- fansi                  0.4.1    2020-01-08 [1] CRAN (R 3.6.0)   
- farver                 2.0.3    2020-01-16 [1] CRAN (R 3.6.0)   
- fastmap                1.0.1    2019-10-08 [1] CRAN (R 3.6.0)   
- foreach                1.5.1    2018-11-26 [1] R-Forge (R 3.6.1)
- fs                     1.3.2    2020-03-05 [1] CRAN (R 3.6.0)   
- gdata                  2.18.0   2017-06-06 [1] CRAN (R 3.6.1)   
- GenomeInfoDb         * 1.22.0   2019-10-29 [1] Bioconductor     
- GenomeInfoDbData       1.2.2    2020-02-14 [1] Bioconductor     
- GenomicRanges        * 1.38.0   2019-10-29 [1] Bioconductor     
- ggbeeswarm             0.6.0    2017-08-07 [1] CRAN (R 3.6.1)   
- ggplot2              * 3.3.0    2020-03-05 [1] CRAN (R 3.6.0)   
- git2r                  0.26.1   2019-06-29 [1] CRAN (R 3.6.1)   
- glue                   1.3.1    2019-03-12 [1] CRAN (R 3.6.0)   
- gplots                 3.0.3    2016-08-12 [1] R-Forge (R 3.6.1)
- gridExtra              2.3      2017-09-09 [1] CRAN (R 3.6.1)   
- gtable                 0.3.0    2019-03-25 [1] CRAN (R 3.6.0)   
- gtools                 3.8.1    2018-06-26 [1] CRAN (R 3.6.1)   
- here                 * 0.1      2017-05-28 [1] CRAN (R 3.6.1)   
- hms                    0.5.3    2020-01-08 [1] CRAN (R 3.6.1)   
- htmltools              0.4.0    2019-10-04 [1] CRAN (R 3.6.0)   
- httpuv                 1.5.2    2019-09-11 [1] CRAN (R 3.6.0)   
- igraph               * 1.2.4.2  2019-11-27 [1] CRAN (R 3.6.0)   
- IRanges              * 2.20.2   2020-01-13 [1] Bioconductor     
- irlba                  2.3.3    2019-02-05 [1] CRAN (R 3.6.1)   
- iterators              1.0.12   2019-07-26 [1] CRAN (R 3.6.1)   
- KernSmooth             2.23-16  2019-10-15 [1] CRAN (R 3.6.1)   
- knitr                  1.28     2020-02-06 [1] CRAN (R 3.6.0)   
- labeling               0.3      2014-08-23 [1] CRAN (R 3.6.0)   
- later                  1.0.0    2019-10-04 [1] CRAN (R 3.6.0)   
- lattice                0.20-40  2020-02-19 [1] CRAN (R 3.6.0)   
- lifecycle              0.2.0    2020-03-06 [1] CRAN (R 3.6.0)   
- limma                  3.42.2   2020-02-03 [1] Bioconductor     
- locfit                 1.5-9.1  2013-04-20 [1] CRAN (R 3.6.1)   
- magrittr               1.5      2014-11-22 [1] CRAN (R 3.6.0)   
- Matrix                 1.2-18   2019-11-27 [1] CRAN (R 3.6.0)   
- matrixStats          * 0.55.0   2019-09-07 [1] CRAN (R 3.6.0)   
- memoise                1.1.0    2017-04-21 [1] CRAN (R 3.6.0)   
- mime                   0.9      2020-02-04 [1] CRAN (R 3.6.0)   
- munsell                0.5.0    2018-06-12 [1] CRAN (R 3.6.0)   
- mvtnorm                1.1-0    2020-02-07 [1] R-Forge (R 3.6.1)
- pacman                 0.5.1    2019-03-11 [1] CRAN (R 3.6.1)   
- patchwork              1.0.0    2019-12-01 [1] CRAN (R 3.6.0)   
- pcaPP                  1.9-73   2018-01-14 [1] CRAN (R 3.6.1)   
- pheatmap             * 1.0.12   2019-01-04 [1] CRAN (R 3.6.1)   
- pillar                 1.4.3    2019-12-20 [1] CRAN (R 3.6.0)   
- pkgbuild               1.0.6    2019-10-09 [1] CRAN (R 3.6.1)   
- pkgconfig              2.0.3    2019-09-22 [1] CRAN (R 3.6.0)   
- pkgload                1.0.2    2018-10-29 [1] CRAN (R 3.6.1)   
- prettyunits            1.1.1    2020-01-24 [1] CRAN (R 3.6.1)   
- processx               3.4.2    2020-02-09 [1] CRAN (R 3.6.0)   
- promises               1.1.0    2019-10-04 [1] CRAN (R 3.6.0)   
- ps                     1.3.2    2020-02-13 [1] CRAN (R 3.6.1)   
- purrr                  0.3.3    2019-10-18 [1] CRAN (R 3.6.0)   
- R6                     2.4.1    2019-11-12 [1] CRAN (R 3.6.0)   
- RColorBrewer           1.1-2    2014-12-07 [1] CRAN (R 3.6.0)   
- Rcpp                   1.0.3    2019-11-08 [1] CRAN (R 3.6.0)   
- RCurl                  1.98-1.1 2020-01-19 [1] CRAN (R 3.6.0)   
- readr                * 1.3.1    2018-12-21 [1] CRAN (R 3.6.1)   
- remotes                2.1.1    2020-02-15 [1] CRAN (R 3.6.1)   
- rlang                  0.4.5    2020-03-01 [1] CRAN (R 3.6.0)   
- rmarkdown              2.1      2020-01-20 [1] CRAN (R 3.6.1)   
- rngtools               1.5      2020-01-23 [1] CRAN (R 3.6.1)   
- robustbase             0.93-6   2019-12-12 [1] R-Forge (R 3.6.1)
- ROCR                   1.0-7    2015-03-26 [1] CRAN (R 3.6.1)   
- rprojroot              1.3-2    2018-01-03 [1] CRAN (R 3.6.1)   
- rrcov                  1.5-2    2020-01-16 [1] CRAN (R 3.6.1)   
- rsvd                   1.0.3    2020-02-17 [1] CRAN (R 3.6.0)   
- S4Vectors            * 0.24.3   2020-01-18 [1] Bioconductor     
- SC3                  * 1.14.0   2019-10-29 [1] Bioconductor     
- scales                 1.1.0    2019-11-18 [1] CRAN (R 3.6.0)   
- scater               * 1.14.6   2019-12-16 [1] Bioconductor     
- scran                * 1.14.6   2020-02-03 [1] Bioconductor     
- sessioninfo            1.1.1    2018-11-05 [1] CRAN (R 3.6.1)   
- shiny                  1.4.0.1  2020-03-12 [1] CRAN (R 3.6.1)   
- SingleCellExperiment * 1.8.0    2019-10-29 [1] Bioconductor     
- statmod                1.4.34   2020-02-17 [1] CRAN (R 3.6.0)   
- stringi                1.4.6    2020-02-17 [1] CRAN (R 3.6.0)   
- stringr                1.4.0    2019-02-10 [1] CRAN (R 3.6.0)   
- SummarizedExperiment * 1.16.1   2019-12-19 [1] Bioconductor     
- testthat               2.3.2    2020-03-02 [1] CRAN (R 3.6.0)   
- tibble                 2.1.3    2019-06-06 [1] CRAN (R 3.6.0)   
- tidyselect             1.0.0    2020-01-27 [1] CRAN (R 3.6.0)   
- usethis              * 1.5.1    2019-07-04 [1] CRAN (R 3.6.1)   
- vctrs                  0.2.4    2020-03-10 [1] CRAN (R 3.6.0)   
- vipor                  0.4.5    2017-03-22 [1] CRAN (R 3.6.0)   
- viridis                0.5.1    2018-03-29 [1] CRAN (R 3.6.1)   
- viridisLite            0.3.0    2018-02-01 [1] CRAN (R 3.6.0)   
- withr                  2.1.2    2018-03-15 [1] CRAN (R 3.6.0)   
- workflowr            * 1.6.1    2020-03-11 [1] CRAN (R 3.6.1)   
- WriteXLS               5.0.0    2019-05-25 [1] CRAN (R 3.6.1)   
- xfun                   0.12     2020-01-13 [1] CRAN (R 3.6.1)   
- xtable                 1.8-4    2019-04-21 [1] CRAN (R 3.6.0)   
- XVector                0.26.0   2019-10-29 [1] Bioconductor     
- yaml                   2.2.1    2020-02-01 [1] CRAN (R 3.6.0)   
- zlibbioc               1.32.0   2019-10-29 [1] Bioconductor     
-
-[1] /Library/Frameworks/R.framework/Versions/3.6/Resources/library</code></pre>
+<pre class="r"><code>saveRDS(sce, file = &quot;data/05-clustering.rds&quot;)</code></pre>
 </div>
 </div>
 
@@ -1128,7 +1302,7 @@ $(document).ready(function ()  {
       theme: "bootstrap3",
       context: '.toc-content',
       hashGenerator: function (text) {
-        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_').toLowerCase();
+        return text.replace(/[.\\/?&!#<>]/g, '').replace(/\s/g, '_');
       },
       ignoreSelector: ".toc-ignore",
       scrollTo: 0
