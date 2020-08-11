@@ -15,7 +15,7 @@ In this document we are going to perform quality control on the cells.
 
 Set chunk options:
 
-```{r knitr}
+```{r}
 knitr::opts_chunk$set(
   autodep    = TRUE,
   cache      = TRUE,
@@ -29,32 +29,24 @@ knitr::opts_chunk$set(
 
 Load required packages:
 
-```{r pacman}
-pacman::p_load(
-  AnnotationHub,
-  BiocSingular,
-  devtools,
-  eulerr,
-  ggrepel,
-  here,
-  patchwork,
-  readr,
-  robustbase,
-  scales,
-  scater,
-  scran
-)
+```{r}
+library(BiocSingular)
+library(EnsDb.Mmusculus.v79)
+library(SingleCellExperiment)
+library(eulerr)
+library(patchwork)
+library(robustbase)
+library(scater)
+library(scran)
 ```
 
 Read experiment data:
 
 ```{r}
-rds <- here("data/00-data-loading.rds")
-
-sce <- read_rds(rds)
+sce <- readRDS("data/salmon-quant.rds")
 ```
 
-Create sample information:
+Make colData metadata:
 
 ```{r}
 sce$sample <- paste("EHF_NMP", sce$SM, sep = "_")
@@ -66,8 +58,6 @@ sce$population <- "NMP"
 sce$cell <- sce$SM
 
 sce$SM <- NULL
-
-colnames(sce) <- sce$sample
 ```
 
 Make feature names unique:
@@ -76,28 +66,32 @@ Make feature names unique:
 rownames(sce) <- uniquifyFeatureNames(rowData(sce)$gene_id, rowData(sce)$gene_name)
 ```
 
+Make sample names unique:
+
+```{r}
+colnames(sce) <- colData(sce)$sample
+```
+
 ## Exploration
 
 We begin by exploring the dataset which contains `r ncol(sce)` cells and `r nrow(sce)` genes.
 
 ## Metrics
 
-Identify mitochondrial transcripts:
+Identify mitochondrial genes:
 
 ```{r}
-hub <- AnnotationHub()
+chr <- mapIds(EnsDb.Mmusculus.v79, keys = rowData(sce)$gene_id, keytype = "GENEID", column = "SEQNAME")
 
-ens <- hub[["AH78811"]]
-
-ids <- mapIds(ens, keys = rowData(sce)$gene_id, keytype = "GENEID", column = "SEQNAME")
-
-mit <- which(ids == "MT")
+mit <- which(chr == "MT")
 ```
 
 Compute QC metrics for each cell:
 
 ```{r}
 sce <- addPerCellQC(sce, subsets = list(MT = mit))
+
+dat <- as.data.frame(colData(sce))
 ```
 
 Inspect the distributions of QC metrics:
@@ -116,8 +110,8 @@ wrap_plots(
 Calculate dimenionality reduction data:
 
 ```{r}
-set.seed(110111011)
-sizeFactors(sce) <- librarySizeFactors(sce)
+set.seed(992630854)
+sce <- computeLibraryFactors(sce)
 sce <- logNormCounts(sce)
 sce <- runPCA(sce, BSPARAM = ExactParam())
 sce <- runTSNE(sce, dimred = "PCA")
@@ -172,8 +166,8 @@ The first approach to identifying low-quality cells is to apply manual threshold
 
 ```{r}
 dat <- DataFrame(
-  low_lib_size = sce$sum < 1e5,
-  low_n_features = sce$detected < 5e3,
+  low_lib_size = sce$sum < 1000000,
+  low_n_features = sce$detected < 5000,
   high_subsets_MT_percent = sce$subsets_MT_percent > 10,
   high_altexps_ERCC_percent = sce$altexps_ERCC_percent > 10
 )
@@ -235,7 +229,7 @@ patchwork::wrap_plots(
 The next approach is to identify cells that are outliers based on the median absolute deviation for the QC metrics:
 
 ```{r}
-dat <- quickPerCellQC(sce, percent_subsets=c("subsets_MT_percent", "altexps_ERCC_percent"))
+dat <- quickPerCellQC(sce, percent_subsets = c("subsets_MT_percent", "altexps_ERCC_percent"))
 
 sce$adaptive_discard <- dat$discard
 ```
@@ -378,51 +372,51 @@ sce <- addPerFeatureQC(sce)
 dat <- as.data.frame(rowData(sce))
 ```
 
-### Low abundance
+### Expression rate
 
 Plot the distribution of log-means across all genes:
 
 ```{r}
 ggplot(dat, aes(mean)) + 
   geom_histogram(bins = 100, colour = "black", fill = "grey") + 
-  scale_x_log10(labels = comma) +
+  scale_x_log10(n.breaks = 10) +
   theme_bw()
 ```
 
-Define low abundance genes using a mean threshold:
+Define lowly expressed genes using a mean threshold:
 
 ```{r}
-dat$low_abundance <- dat$mean < 1
+dat$low_mean <- dat$mean < 1
 ```
 
-Tabulate the number of low abundance genes:
+Tabulate the number of lowly expressed genes:
 
 ```{r}
-knitr::kable(table(dat$low_abundance), col.names = c("Low abundance", "Count"))
+knitr::kable(table(dat$low_mean), col.names = c("Lowly expressed", "Count"))
 ```
 
-### Low frequency
+### Detection rate
 
-Plot the percentange of expressing cells against the log-mean expression for each gene:
+Plot the percentage of expressing cells against the log-mean expression for each gene:
 
 ```{r}
 ggplot(dat, aes(mean, detected)) +
   geom_point(alpha = 0.1, colour = "grey") +
   geom_smooth(colour = "black", se = FALSE) +
-  scale_x_log10(labels = comma) +
+  scale_x_log10(n.breaks = 10) +
   theme_bw()
 ```
 
-Define low frequency genes as having a minimum of 1 read in at least 1 percent of cells:
+Define lowly detected genes as having a minimum of 1 read in at least 1 percent of cells:
 
 ```{r}
-dat$low_frequency <- !rowSums(counts(sce) >= 1) >= (ncol(sce) * 0.01)
+dat$low_detected <- !rowSums(counts(sce) >= 1) >= (ncol(sce) * 0.01)
 ```
 
-Tabulate the number of low frequency genes:
+Tabulate the number of lowly detected genes:
 
 ```{r}
-knitr::kable(table(dat$low_frequency), col.names = c("Low frequency", "Count"))
+knitr::kable(table(dat$low_detected), col.names = c("Lowly detected", "Count"))
 ```
 
 ### Comparison
@@ -430,18 +424,18 @@ knitr::kable(table(dat$low_frequency), col.names = c("Low frequency", "Count"))
 Compare the number of genes selected between methods using an Euler diagram:
 
 ```{r}
-mat <- cbind(Keep = TRUE, Mean = dat$low_abundance, Freq = dat$low_frequency)
+mat <- cbind(Keep = TRUE, Mean = dat$low_mean, Freq = dat$low_detected)
 fit <- euler(mat, shape = "circle")
 col <- RColorBrewer::brewer.pal(n = 3, name = "Pastel2")
 plot(fit, fill = col, quantities = TRUE)
 ```
 
-### Filter
+### Selection
 
-We are going to use the frequency-based filter as it tends to be less aggressive:
+Bookmark low abundance and frequency genes (no filtering is performed because of data integration):
 
 ```{r}
-sce <- sce[!dat$low_frequency, ]
+rowData(sce) <- cbind(rowData(sce), dat[, c("low_mean", "low_detected")])
 ```
 
 ## Summary
@@ -451,13 +445,5 @@ After quality control we have a dataset with `r ncol(sce)` cells and `r nrow(sce
 ### Output
 
 ```{r}
-write_rds(sce, here("data/01-quality-control.rds"))
-```
-
-### Session
-
-Print version information:
-
-```{r session}
-session_info()
+saveRDS(sce, "data/01-quality-control.rds")
 ```

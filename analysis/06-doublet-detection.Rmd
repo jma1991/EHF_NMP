@@ -26,17 +26,14 @@ knitr::opts_chunk$set(
 Load required packages:
 
 ```{r}
-pacman::p_load(devtools, here, readr, scater, scran)
+library(scater)
+library(scran)
 ```
 
 Read experiment data:
 
 ```{r}
-rds <- here("data/05-clustering.rds")
-
-sce <- read_rds(rds)
-
-alt <- altExp(sce, "original", withColData = TRUE)
+sce <- readRDS("data/05-clustering.rds")
 ```
 
 ## Detection
@@ -54,9 +51,21 @@ run <- ifelse(num < 3, FALSE, TRUE)
 Identify potential clusters of doublet cells based on intermediate expression profiles:
 
 ```{r eval = run}
-dbl <- doubletCluster(alt, alt$cluster)
+dbl <- doubletCluster(sce, sce$cluster)
+```
 
-sce$doublet_cluster <- isOutlier(dbl$N, type = "lower", log = TRUE)
+Annotate clusters that have unusually low number of unique genes:
+
+```{r eval = run}
+out <- isOutlier(dbl$N + 1, type = "lower", log = TRUE) # add pseudocount for log transform
+
+id1 <- dbl$source1[out]
+
+id2 <- dbl$source2[out]
+
+ids <- union(id1, id2)
+
+sce$doublet_cluster <- ifelse(sce$cluster %in% ids, TRUE, FALSE)
 ```
 
 Check for clusters that have unusually low number of unique genes:
@@ -68,7 +77,7 @@ run <- any(sce$doublet_cluster)
 Find significant marker genes between clusters:
 
 ```{r eval = run}
-res <- findMarkers(alt, alt$cluster, direction = "up")
+res <- findMarkers(sce, sce$cluster, direction = "up")
 
 sig <- lapply(res, subset, FDR < 0.1)
 
@@ -88,7 +97,7 @@ for (n in names(sig)) {
   
   cat("#### Cluster", n, "\n")
 
-  plotHeatmap(alt, order_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE)
+  plotHeatmap(sce, order_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE)
 
   cat("\n\n")
 
@@ -100,7 +109,7 @@ for (n in names(sig)) {
 Identify potential doublet cells based on simulations of putative doublet expression profiles:
 
 ```{r}
-set.seed(1701)
+set.seed(50694644)
 
 dim <- reducedDim(sce)
 
@@ -138,15 +147,5 @@ plotUMAP(sce, colour_by = "doublet_score")
 Write experiment data:
 
 ```{r}
-rds <- here("data/06-doublet-detection.rds")
-
-write_rds(sce, rds)
-```
-
-### Session
-
-Print session information:
-
-```{r}
-session_info()
+saveRDS(sce, file = "data/06-doublet-detection.rds" )
 ```

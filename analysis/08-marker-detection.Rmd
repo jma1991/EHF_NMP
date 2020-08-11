@@ -15,7 +15,7 @@ In this analysis we will identify differentially expressed genes between cluster
 
 Set chunk options:
 
-```{r knitr}
+```{r}
 knitr::opts_chunk$set(
   autodep    = TRUE,
   cache      = TRUE,
@@ -31,12 +31,8 @@ knitr::opts_chunk$set(
 Load required packages:
 
 ```{r}
-pacman::p_load(
-  readr,
-  here,
-  scater,
-  scran
-)
+library(scater)
+library(scran)
 ```
 
 Import datatable options:
@@ -48,11 +44,7 @@ DT::datatable(matrix())
 Read experiment data:
 
 ```{r}
-rds <- here("data/07-cell-cycle.rds")
-
-sce <- read_rds(rds)
-
-alt <- altExp(sce, "original", withColData = TRUE)
+sce <- readRDS("data/07-cell-cycle.rds")
 ```
 
 ## Welch *t*-test
@@ -62,9 +54,9 @@ alt <- altExp(sce, "original", withColData = TRUE)
 Find non-specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "t", pval.type = "any", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "t", pval.type = "any", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -89,20 +81,20 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
   
   dat <- sig[[n]]
   
-  top <- subset(dat, Top <= 10)
+  top <- head(dat, n = 10)
   
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
   
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
   
   cat("\n\n")
   
@@ -111,18 +103,18 @@ for (n in names(sig)) {
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -135,18 +127,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -162,9 +154,9 @@ for (n in names(sig)) {
 Find specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "t", pval.type = "all", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "t", pval.type = "all", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -189,40 +181,40 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
-
+  
   dat <- sig[[n]]
   
-  top <- head(dat, n = 50)
+  top <- head(dat, n = 10)
   
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
-
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
-
+  
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  
   cat("\n\n")
-
+  
 }
 ```
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- head(dat, n = 16)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -235,18 +227,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- head(dat, n = 16)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -264,9 +256,9 @@ for (n in names(sig)) {
 Find non-specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "wilcox", pval.type = "any", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "wilcox", pval.type = "any", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -291,40 +283,40 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
-
+  
   dat <- sig[[n]]
-
-  top <- subset(dat, Top <= 10)
-
+  
+  top <- head(dat, n = 10)
+  
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
-
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
-
+  
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  
   cat("\n\n")
-
+  
 }
 ```
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -337,18 +329,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -364,9 +356,9 @@ for (n in names(sig)) {
 Find specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "wilcox", pval.type = "all", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "wilcox", pval.type = "all", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -391,40 +383,40 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
-
+  
   dat <- sig[[n]]
   
-  top <- head(dat, n = 50)
+  top <- head(dat, n = 10)
   
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
-
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
-
+  
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  
   cat("\n\n")
-
+  
 }
 ```
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
-  
-  top <- head(dat, n = 16)
-  
+
+  top <- head(dat, n = 10)
+
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -437,18 +429,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
-  
-  top <- head(dat, n = 16)
-  
+
+  top <- head(dat, n = 10)
+
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -466,9 +458,9 @@ for (n in names(sig)) {
 Find non-specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "binom", pval.type = "any", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "binom", pval.type = "any", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -493,40 +485,40 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
-
+  
   dat <- sig[[n]]
-
-  top <- subset(dat, Top <= 10)
-
+  
+  top <- head(dat, n = 10)
+  
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
-
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
-
+  
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  
   cat("\n\n")
-
+  
 }
 ```
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -539,18 +531,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
 
-  top <- subset(dat, Top <= 5)
+  top <- head(dat, n = 10)
 
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -566,9 +558,9 @@ for (n in names(sig)) {
 Find specific candidate marker genes between clusters:
 
 ```{r}
-res <- findMarkers(alt, alt$cluster, test.type = "binom", pval.type = "all", direction = "up")
+res <- findMarkers(sce, sce$cluster, test.type = "binom", pval.type = "all", direction = "up")
 
-sig <- lapply(res, subset, FDR < 0.1)
+sig <- lapply(res, subset, FDR < 0.05)
 
 sig <- Filter(nrow, sig)
 ```
@@ -593,40 +585,40 @@ for (n in names(sig)) {
 
 #### Heatmap {.tabset}
 
-Create a heatmap of expression values for the top 5 marker genes:
+Plot heatmap of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
-
+  
   dat <- sig[[n]]
   
-  top <- head(dat, n = 50)
+  top <- head(dat, n = 10)
   
   ids <- rownames(top)
 
   cat("##### Cluster", n, "\n")
-
-  plotHeatmap(alt, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
-
+  
+  plotHeatmap(sce, colour_columns_by = "cluster", features = ids, center = TRUE, symmetric = TRUE, cluster_rows = ifelse(length(ids) >= 2, TRUE, FALSE), show_colnames = FALSE)
+  
   cat("\n\n")
-
+  
 }
 ```
 
 #### Dimension {.tabset}
 
-Create dimensionality reduction plots coloured by the top 5 marker genes:
+Plot reduced dimension coloured by gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
-  
-  top <- head(dat, n = 16)
-  
+
+  top <- head(dat, n = 10)
+
   ids <- rownames(top)
 
-  plt <- lapply(ids, function(x) plotUMAP(alt, colour_by = x) + ggtitle(x))
+  plt <- lapply(ids, function(x) plotUMAP(sce, colour_by = x) + ggtitle(x))
 
   cat("##### Cluster", n, "\n")
 
@@ -639,18 +631,18 @@ for (n in names(sig)) {
 
 #### Expression {.tabset}
 
-Plot expression values for the top 5 marker genes against cluster number:
+Plot distribution of gene expression values for the Top 10 marker genes:
 
 ```{r, fig.height = 8, fig.width = 10, results = "asis"}
 for (n in names(sig)) {
 
   dat <- sig[[n]]
-  
-  top <- head(dat, n = 16)
-  
+
+  top <- head(dat, n = 10)
+
   ids <- rownames(top)
 
-  plt <- plotExpression(alt, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
+  plt <- plotExpression(sce, features = ids, x = "cluster", colour_by = "cluster", scales = "free")
 
   cat("##### Cluster", n, "\n")
 
@@ -668,13 +660,5 @@ for (n in names(sig)) {
 Write experiment data:
 
 ```{r}
-readr::write_rds(sce, here("data/08-marker-detection.rds"))
-```
-
-### Session
-
-Print session information:
-
-```{r}
-devtools::session_info()
+saveRDS(sce, file = "data/08-marker-detection.rds")
 ```
